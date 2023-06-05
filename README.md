@@ -1,66 +1,140 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Cortes y sistemas LARAVEL
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Ciertas secciones de cortes estan en este sistema, algunas estan en el viejo, coexisten hasta que todo el sistema este aca.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Indice
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. [Deployment](#deployment)
+2. [Update](#update)
+3. [Comandos utiles](#usefull-commands)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+<a name="deployment"></a>
+### Deployment
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1) Requerimientos 
+    * Composer [Web oficial](https://getcomposer.org/download/)
+    * Supervisor `# apt install supervisor`
+    * Cron `# apt install cron crontab`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2) Instalar un stack LEMP y agregar un virtual host a la carpeta `public`, de acuerdo a este virtualhost de ejemplo:
 
-## Laravel Sponsors
+    ```
+    server {
+        listen 80;
+        server_name example.com;
+        root /example.com/public;
+    
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-XSS-Protection "1; mode=block";
+        add_header X-Content-Type-Options "nosniff";
+    
+        index index.html index.htm index.php;
+    
+        charset utf-8;
+    
+        location / {
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+    
+        location = /favicon.ico { access_log off; log_not_found off; }
+        location = /robots.txt  { access_log off; log_not_found off; }
+    
+        error_page 404 /index.php;
+    
+        location ~ \.php$ {
+            fastcgi_split_path_info ^(.+\.php)(/.+)$;
+            fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+            fastcgi_index index.php;
+            include fastcgi_params;
+        }
+    
+        location ~ /\.(?!well-known).* {
+            deny all;
+        }
+    }
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+3) Instalar dependencias
+    ```bash
+    $ composer install
+    ```
 
-### Premium Partners
+4) Permisos
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+    ```bash
+    # chgrp -R www-data storage bootstrap/cache
+    # chmod -R 775 storage boostrap/cache
+    ```
 
-## Contributing
+5) Configuracion
+    * Copiar .env.example a .env y editar variables de entorno `$ cp .env.example .env`
+    * Agregar la app_key `$ php artisan key:generate`
+    * Ejecutar migraciones `$ php artisan migrate`
+    * Cron del scheduler
+        1) Agregar este cron para el usuario \*\*\*USUARIO DEL PROYECTO\*\*\*
+            ```txt
+            * * * * * cd /***RUTA AL PROYECTO*** && ***RUTA A PHP*** artisan schedule:run >> /dev/null 2>&1
+            ```
+    * Workers persistentes
+        1) Crear los archivos de configuracion de supervisor
+        
+            `/etc/supervisor/conf.d/cys-laravel-worker.conf`
+            ```txt
+            [program:cys-laravel-worker]
+            process_name=%(program_name)s_%(process_num)02d
+            command=php /***RUTA AL PROYECTO***/artisan queue:work --queue=default
+            autostart=true
+            autorestart=true
+            user=***USUARIO DEL PROYECTO***
+            numprocs=1
+            ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+           `/etc/supervisor/conf.d/cys-laravel-email-worker.conf` 
+            ```txt
+            [program:cys-laravel-email-worker]
+            process_name=%(program_name)s_%(process_num)02d
+            command=php /***RUTA AL PROYECTO***/artisan queue:work --queue=emails --tries=3 --delay=1800  
+            autostart=true
+            autorestart=true
+            user=***USUARIO DEL PROYECTO***
+            numprocs=1
+            ``` 
+        2) Reiniciar supervisor
+            ```
+            # supervisorctl reread
+            # supervisorctl update
+            # supervisorctl start cys-laravel-worker:*
+            # supervisorctl start cys-laravel-email-worker:*
+            ```
+        
+6) Voilá, el proyecto deberia estar funcionando. 
+    
+---
+    
+<a name="update"></a>
+### Update
+```bash
+$ git pull
+$ composer install
+$ php artisan migrate
+$ php artisan queue:restart
+# supervisorctl restart cys-laravel-email-worker:*
+# supervisorctl restart cys-laravel-worker:*
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+<a name="usefull-commands"></a>
+### Comandos utiles
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+<a name="versions"></a>
+### Versiones entorno
+1) Requerimientos 
+    * Sistemas Opencore -> intranet -> php 5.6
+    * Gestion Laravel -> intranet2 -> php 7.3
+    * node -v -> v15.14.0

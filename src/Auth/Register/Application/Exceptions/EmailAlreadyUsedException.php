@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Agenda\User\Application\Exceptions;
+namespace Src\Auth\Register\Application\Exceptions;
 
 final class EmailAlreadyUsedException extends \DomainException
 {

@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Auth\login\Infrastructure;
 
 use Illuminate\Http\JsonResponse;
@@ -6,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Src\Auth\login\Domain\AuthInterface;
 
 
-class logoutController extends Controller
+class LogoutController extends Controller
 {
     private AuthInterface $auth;
 

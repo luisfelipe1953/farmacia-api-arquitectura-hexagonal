@@ -2,31 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::group(['middleware' => 'jwt.auth'], function () {
+    Route::post('/pharmacies', Src\Pharmacies\Pharmacy\Infrastructure\CreatePharmacyController::class);
+    Route::put('/pharmacies/{id}', Src\Pharmacies\Pharmacy\Infrastructure\UpdatePharmacyController::class);
+    Route::delete('/pharmacies/{id}', Src\Pharmacies\Pharmacy\Infrastructure\DeletePharmacyController::class);
+});
 
-use Src\Pharmacies\Pharmacy\Infrastructure\AllPharmacyController;
-use Src\Pharmacies\Pharmacy\Infrastructure\ShowPharmacyController;
-use Src\Pharmacies\Pharmacy\Infrastructure\CreatePharmacyController;
-use Src\Pharmacies\Pharmacy\Infrastructure\DeletePharmacyController;
-use Src\Pharmacies\Pharmacy\Infrastructure\UpdatePharmacyController;
-use Src\Pharmacies\Pharmacy\Infrastructure\GetNearestPharmacyController;
-
-Route::get('/pharmacies', AllPharmacyController::class)->name('pharmacy.index');
-Route::post('/pharmacies', CreatePharmacyController::class)->name('pharmacy.store');
-Route::get('/pharmacies/{id}', ShowPharmacyController::class)->name('pharmacy.show');
-Route::put('/pharmacies/{id}', UpdatePharmacyController::class)->name('pharmacy.update');
-Route::delete('/pharmacies/{id}', DeletePharmacyController::class)->name('pharmacy.destroy');
-Route::post('/pharmacies/nearby', GetNearestPharmacyController::class)->name('pharmacy.nearby');
+Route::get('/pharmacies/{id}', Src\Pharmacies\Pharmacy\Infrastructure\ShowPharmacyController::class);
+Route::get('/pharmacies', Src\Pharmacies\Pharmacy\Infrastructure\AllPharmacyController::class);
+Route::post('/pharmacies/nearby', Src\Pharmacies\Pharmacy\Infrastructure\GetNearestPharmacyController::class);
 
 
-
-use Src\Auth\login\Infrastructure\LoginController;
-use Src\Auth\login\Infrastructure\logoutController;
-use Src\Auth\login\Infrastructure\MeController;
-use Src\Auth\login\Infrastructure\RefreshController;
-use Src\Auth\Register\Infrastructure\RegisterController;
-
-Route::post('register', RegisterController::class);
-Route::post('login', LoginController::class);
-Route::post('logout', logoutController::class);
-Route::post('refresh', RefreshController::class);
-Route::get('me', MeController::class);
+Route::post('register', Src\Auth\Register\Infrastructure\RegisterController::class);
+Route::post('login', Src\Auth\login\Infrastructure\LoginController::class);
+Route::post('logout', Src\Auth\login\Infrastructure\LogoutController::class);
+Route::post('refresh', Src\Auth\login\Infrastructure\RefreshController::class);
+Route::get('me', Src\Auth\login\Infrastructure\MeController::class);
