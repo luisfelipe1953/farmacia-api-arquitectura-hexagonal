@@ -8,9 +8,9 @@ Route::group(['middleware' => 'jwt.auth'], function () {
     Route::delete('/pharmacies/{id}', Src\Pharmacies\Pharmacy\Infrastructure\DeletePharmacyController::class);
 });
 
+Route::post('/pharmacy-nearby', Src\Pharmacies\Pharmacy\Infrastructure\GetNearestPharmacyController::class);
 Route::get('/pharmacies/{id}', Src\Pharmacies\Pharmacy\Infrastructure\ShowPharmacyController::class);
 Route::get('/pharmacies', Src\Pharmacies\Pharmacy\Infrastructure\AllPharmacyController::class);
-Route::post('/pharmacies/nearby', Src\Pharmacies\Pharmacy\Infrastructure\GetNearestPharmacyController::class);
 
 
 Route::post('register', Src\Auth\Register\Infrastructure\RegisterController::class);

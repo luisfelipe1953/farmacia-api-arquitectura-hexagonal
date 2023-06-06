@@ -49,6 +49,8 @@ class EloquentPharmacyRepository implements PharmacyRepositoryInterface
 
     public function findNeartPharmacy(Latitude $latitude, Longitude $longitude): array
     {
+
+        // mysql
         $neartPharmacies = PharmacyEloquentModel::select('id', 'name', 'address', 'latitude', 'longitude')
             ->orderByRaw("ST_Distance_Sphere(POINT(?, ?), POINT(longitude, latitude)) ASC", [$longitude->__toString(), $latitude->__toString()])
             ->limit(1)
@@ -57,6 +59,19 @@ class EloquentPharmacyRepository implements PharmacyRepositoryInterface
                 return PharmacyMapper::fromEloquent($pharmacyEloquent);
             })
             ->all();
+
+        // postgres
+        // $neartPharmacies = PharmacyEloquentModel::select('id', 'name', 'address', 'latitude', 'longitude')
+        //     ->orderByRaw("ST_DistanceSphere(ST_MakePoint(?, ?), ST_MakePoint(longitude, latitude)) ASC", [$longitude, $latitude])
+        //     ->limit(1)
+        //     ->get()
+        //     ->map(function ($pharmacyEloquent) {
+        //         return PharmacyMapper::fromEloquent($pharmacyEloquent);
+        //     })
+        //     ->all();    
+
+            //SELECT postgis_version();
+            //CREATE EXTENSION IF NOT EXISTS postgis;
 
         return $neartPharmacies;
     }

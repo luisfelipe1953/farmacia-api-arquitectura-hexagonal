@@ -5,8 +5,8 @@ namespace Src\Auth\Register\Application\UseCases\Commands;
 use Src\Auth\Register\Domain\Model\User;
 use Src\Auth\Register\Domain\Model\ValueObjects\Password;
 use Src\Auth\Register\Domain\Repositories\UserRepositoryInterface;
-use Src\Agenda\User\Application\Exceptions\EmailAlreadyUsedException;
 use Src\Auth\Register\Infrastructure\EloquentModels\UserEloquentModel;
+use Src\Auth\Register\Application\Exceptions\EmailAlreadyUsedException;
 
 class RegisterUserCommand
 {
