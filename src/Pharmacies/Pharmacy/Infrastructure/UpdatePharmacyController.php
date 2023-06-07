@@ -16,6 +16,8 @@ class UpdatePharmacyController extends Controller
             $pharmacy = PharmacyMapper::fromRequest($request, $id);
             (new UpdatePharmacyCommand($pharmacy))->__invoke();
             return $this->response->success('actualizado');
+        } catch (\DomainException $domainException) {
+            return response()->json($domainException->getMessage(), 422);
         } catch (\Exception $e) {
             return $this->response->catch($e->getMessage());
         }
