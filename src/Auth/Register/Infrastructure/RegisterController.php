@@ -1,5 +1,5 @@
 <?php
-namespace Src\Auth\Register\Infrastructure;
+namespace Src\Modules\Auth\Application\Mapper;
 
 
 use Illuminate\Http\Request;

@@ -1,140 +1,54 @@
-# Cortes y sistemas LARAVEL
+# Farmacia API - Arquitectura Hexagonal
 
-Ciertas secciones de cortes estan en este sistema, algunas estan en el viejo, coexisten hasta que todo el sistema este aca.
+Este repositorio contiene una API de ejemplo para un sistema de gestión de farmacias, implementada siguiendo la arquitectura hexagonal (también conocida como arquitectura de puertos y adaptadores).
 
----
+La arquitectura hexagonal es un enfoque de diseño de software que promueve la separación de preocupaciones y la modularidad, facilitando la escalabilidad y el mantenimiento de la aplicación.
 
+## Características
 
-## Indice
+- **Capas bien definidas:** La aplicación está dividida en capas claras y separadas, incluyendo la capa de dominio, la capa de aplicación y la capa de infraestructura.
+- **Independencia de frameworks y tecnologías:** La arquitectura hexagonal permite que la lógica de negocio esté aislada de los detalles de implementación y las dependencias externas.
+- **Testabilidad y mantenibilidad:** La separación de preocupaciones facilita las pruebas unitarias y el mantenimiento de la aplicación.
+- **Escalabilidad y flexibilidad:** La arquitectura hexagonal permite agregar o cambiar adaptadores (por ejemplo, una base de datos diferente) sin afectar la lógica de negocio.
 
-1. [Deployment](#deployment)
-2. [Update](#update)
-3. [Comandos utiles](#usefull-commands)
+## Estructura del proyecto
 
----
+El repositorio sigue una estructura típica para un proyecto basado en la arquitectura hexagonal:
 
-<a name="deployment"></a>
-### Deployment
+- **src**: Contiene el código fuente de la aplicación.
+  - **Domain**: Define las entidades, los repositorios y los casos de uso del dominio.
+  - **Application**: Implementa los casos de uso y orquesta la lógica de negocio.
+  - **Infrastructure**: Contiene los adaptadores y las implementaciones concretas, como los repositorios de base de datos y las conexiones externas.
+- **tests**: Incluye las pruebas unitarias y de integración para garantizar el correcto funcionamiento de la aplicación.
+- **docs**: Documentación adicional, como diagramas de arquitectura, instrucciones de instalación, etc.
 
-1) Requerimientos 
-    * Composer [Web oficial](https://getcomposer.org/download/)
-    * Supervisor `# apt install supervisor`
-    * Cron `# apt install cron crontab`
+## Instalacion, configuracion y uso
 
-2) Instalar un stack LEMP y agregar un virtual host a la carpeta `public`, de acuerdo a este virtualhost de ejemplo:
+- **Instalacion**
 
-    ```
-    server {
-        listen 80;
-        server_name example.com;
-        root /example.com/public;
-    
-        add_header X-Frame-Options "SAMEORIGIN";
-        add_header X-XSS-Protection "1; mode=block";
-        add_header X-Content-Type-Options "nosniff";
-    
-        index index.html index.htm index.php;
-    
-        charset utf-8;
-    
-        location / {
-            try_files $uri $uri/ /index.php?$query_string;
-        }
-    
-        location = /favicon.ico { access_log off; log_not_found off; }
-        location = /robots.txt  { access_log off; log_not_found off; }
-    
-        error_page 404 /index.php;
-    
-        location ~ \.php$ {
-            fastcgi_split_path_info ^(.+\.php)(/.+)$;
-            fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
-            fastcgi_index index.php;
-            include fastcgi_params;
-        }
-    
-        location ~ /\.(?!well-known).* {
-            deny all;
-        }
-    }
-    ```
-
-3) Instalar dependencias
-    ```bash
-    $ composer install
-    ```
-
-4) Permisos
-
-    ```bash
-    # chgrp -R www-data storage bootstrap/cache
-    # chmod -R 775 storage boostrap/cache
-    ```
-
-5) Configuracion
-    * Copiar .env.example a .env y editar variables de entorno `$ cp .env.example .env`
-    * Agregar la app_key `$ php artisan key:generate`
-    * Ejecutar migraciones `$ php artisan migrate`
-    * Cron del scheduler
-        1) Agregar este cron para el usuario \*\*\*USUARIO DEL PROYECTO\*\*\*
-            ```txt
-            * * * * * cd /***RUTA AL PROYECTO*** && ***RUTA A PHP*** artisan schedule:run >> /dev/null 2>&1
-            ```
-    * Workers persistentes
-        1) Crear los archivos de configuracion de supervisor
-        
-            `/etc/supervisor/conf.d/cys-laravel-worker.conf`
-            ```txt
-            [program:cys-laravel-worker]
-            process_name=%(program_name)s_%(process_num)02d
-            command=php /***RUTA AL PROYECTO***/artisan queue:work --queue=default
-            autostart=true
-            autorestart=true
-            user=***USUARIO DEL PROYECTO***
-            numprocs=1
-            ```
-
-           `/etc/supervisor/conf.d/cys-laravel-email-worker.conf` 
-            ```txt
-            [program:cys-laravel-email-worker]
-            process_name=%(program_name)s_%(process_num)02d
-            command=php /***RUTA AL PROYECTO***/artisan queue:work --queue=emails --tries=3 --delay=1800  
-            autostart=true
-            autorestart=true
-            user=***USUARIO DEL PROYECTO***
-            numprocs=1
-            ``` 
-        2) Reiniciar supervisor
-            ```
-            # supervisorctl reread
-            # supervisorctl update
-            # supervisorctl start cys-laravel-worker:*
-            # supervisorctl start cys-laravel-email-worker:*
-            ```
-        
-6) Voilá, el proyecto deberia estar funcionando. 
-    
----
-    
-<a name="update"></a>
-### Update
-```bash
-$ git pull
-$ composer install
-$ php artisan migrate
-$ php artisan queue:restart
-# supervisorctl restart cys-laravel-email-worker:*
-# supervisorctl restart cys-laravel-worker:*
+```sh
+composer install
 ```
 
----
+- **Configura tu archivo de variables de entorno (.env)**
 
-<a name="usefull-commands"></a>
-### Comandos utiles
+- **Ejecuta las migraciones con datos falsos**
 
-<a name="versions"></a>
-### Versiones entorno
-1) Requerimientos 
-    * Sistemas Opencore -> intranet -> php 5.6
-    * Gestion Laravel -> intranet2 -> php 7.3
-    * node -v -> v15.14.0
+```sh
+php artisan migrate --seed
+```
+
+- **Correr el servidor**
+
+```sh
+php artisan serve
+```
+
+- **Tambien puedes correr los Tests Unitarios incluidos**
+
+```sh
+php artisan test
+```
+
+# Consume la API con su Front Correspondiente
+### [Repositorio Frontend con VueJS](https://github.com/luisfelipe1953/Pharmacer-front "Repositorio Frontend con VueJS")
