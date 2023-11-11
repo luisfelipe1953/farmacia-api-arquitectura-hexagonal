@@ -1,0 +1,56 @@
+version: '3.8'
+services:
+  pharmacy-nginx:
+    image: nginx:alpine3.17
+    restart: always
+    depends_on:
+      - pharmacy-db
+      - pharmacy
+    container_name: pharmacy-nginx
+    ports:
+      - 81:80
+      - 444:443
+    volumes:
+      - ./:/var/www
+      - ./docker/:/etc/nginx/conf.d
+    networks:
+      - pharmacy-networks
+
+  pharmacy-db:
+    image: mysql:8.0.33
+    restart: unless-stopped
+    container_name: pharmacy-db
+    env_file:
+      - ./.env
+    environment:
+      - MYSQL_USER=pharmacydb
+      - MYSQL_PASSWORD=pharmacydb
+      - MYSQL_DATABASE=pharmacydb
+      - MYSQL_ROOT_PASSWORD=pharmacydb
+    ports:
+      - 3306:3306
+    volumes:
+      - pharmacy-db:/var/lib/mysql
+    networks:
+      - pharmacy-networks
+
+  pharmacy:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: pharmacy
+    working_dir: /var/www
+    ports:
+      - 9000:9000
+    networks:
+      - pharmacy-networks
+    volumes:
+      - ./:/var/www
+
+volumes:
+  pharmacy-db:
+
+
+networks:
+  pharmacy-networks:
+    driver: bridge

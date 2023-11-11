@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'jwt.auth'], function () {
-    Route::post('/pharmacies', Src\Pharmacies\Pharmacy\Infrastructure\CreatePharmacyController::class);
-    Route::put('/pharmacies/{id}', Src\Pharmacies\Pharmacy\Infrastructure\UpdatePharmacyController::class);
-    Route::delete('/pharmacies/{id}', Src\Pharmacies\Pharmacy\Infrastructure\DeletePharmacyController::class);
 });
+
+Route::post('/pharmacies', Src\Pharmacies\Pharmacy\Infrastructure\CreatePharmacyController::class);
+Route::put('/pharmacies/{id}', Src\Pharmacies\Pharmacy\Infrastructure\UpdatePharmacyController::class);
+Route::delete('/pharmacies/{id}', Src\Pharmacies\Pharmacy\Infrastructure\DeletePharmacyController::class);
 
 Route::post('/pharmacy-nearby', Src\Pharmacies\Pharmacy\Infrastructure\GetNearestPharmacyController::class);
 Route::get('/pharmacies/{id}', Src\Pharmacies\Pharmacy\Infrastructure\ShowPharmacyController::class);

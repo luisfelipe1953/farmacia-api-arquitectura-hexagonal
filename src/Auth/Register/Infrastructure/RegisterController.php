@@ -1,6 +1,6 @@
 <?php
-namespace Src\Modules\Auth\Application\Mapper;
 
+namespace Src\Auth\Register\Infrastructure;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -23,5 +23,4 @@ class RegisterController extends Controller
             return response()->json(['error' => $domainException->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
-
 }
